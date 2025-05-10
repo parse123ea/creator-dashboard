@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Connect Your Accounts</title>
+  <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+</head>
+<body>
+  <h1>Connect Your Accounts</h1>
+  <button id="connect-twitch">Connect Twitch</button>
+  <button id="connect-plaid">Connect Bank</button>
+
+  <script>
+    // Plaid
+    fetch('/api/plaid-link-token')
+      .then(res => res.json())
+      .then(data => {
+        const handler = Plaid.create({
+          token: data.link_token,
+          onSuccess: function(public_token, metadata) {
+            fetch('/api/plaid-exchange', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ public_token })
+            });
+          }
+        });
+
+        document.getElementById('connect-plaid').addEventListener('click', () => handler.open());
+      });
+
+    // Twitch
+    document.getElementById('connect-twitch').addEventListener('click', () => {
+      window.location.href = 'https://id.twitch.tv/oauth2/authorize?client_id=YOUR_TWITCH_CLIENT_ID&redirect_uri=https://YOUR_VERCEL_DOMAIN/api/twitch-token&response_type=code&scope=user:read:email';
+    });
+  </script>
+</body>
+</html>
