@@ -11,25 +11,38 @@
 
   <script>
     // Plaid
+    let handler;
+
     fetch('/api/plaid-link-token')
       .then(res => res.json())
       .then(data => {
-        const handler = Plaid.create({
+        handler = Plaid.create({
           token: data.link_token,
           onSuccess: function(public_token, metadata) {
             fetch('/api/plaid-exchange', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ public_token })
-               }).then(res => res.json())
-          .then(data => {
-            console.log('Access token:', data.access_token);
-          });
+            })
+            .then(res => res.json())
+            .then(data => {
+              console.log('Access token:', data.access_token);
+              alert('Bank linked successfully!');
+            });
+          }
+        });
+      })
+      .catch(err => {
+        console.error("Plaid Link init error:", err);
+      });
+
+    document.getElementById('connect-plaid').addEventListener('click', () => {
+      if (handler) {
+        handler.open();
+      } else {
+        alert("Plaid not ready yet. Try again shortly.");
       }
     });
-
-        document.getElementById('connect-plaid').addEventListener('click', () => handler.open());
-      });
 
     // Twitch
     document.getElementById('connect-twitch').addEventListener('click', () => {
