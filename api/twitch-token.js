@@ -1,6 +1,7 @@
 export default async function handler(req, res) {
-  console.log("TWITCH_CLIENT_ID:", process.env.TWITCH_CLIENT_ID);
+console.log("TWITCH_CLIENT_ID:", process.env.TWITCH_CLIENT_ID);
 console.log("TWITCH_CLIENT_SECRET:", process.env.TWITCH_CLIENT_SECRET);
+
 
   const { code } = req.query;
 
