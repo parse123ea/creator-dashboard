@@ -19,6 +19,10 @@
         handler = Plaid.create({
           token: data.link_token,
           onSuccess: function(public_token, metadata) {
+
+            const user_id = "user_123"; // You can dynamically generate this if needed
+            const timestamp = new Date().toISOString();
+            
             console.log("Sending public_token to Make:", public_token);
 
             fetch('https://hook.us2.make.com/41vvltb5ci0ji3fa4hbb9lv6geetdjb9', {
@@ -26,7 +30,8 @@
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 public_token,
-                metadata
+                user_id,
+                timestamp
               })
             })
             .then(() => {
