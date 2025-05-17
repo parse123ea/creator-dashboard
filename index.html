@@ -18,14 +18,13 @@
       .then(data => {
         handler = Plaid.create({
           token: data.link_token,
-          onSuccess: function(public_token, metadata) {
+          onSuccess: async function(public_token, metadata) {
 
             const user_id = "user_123"; // You can dynamically generate this if needed
             const timestamp = new Date().toISOString();
-            
-            console.log("Sending public_token to Make:", public_token);
 
-            fetch('https://hook.us2.make.com/41vvltb5ci0ji3fa4hbb9lv6geetdjb9', {
+            console.log("Sending public_token to Make (save-token scenario)");
+            await fetch('https://hook.us2.make.com/41vvltb5ci0ji3fa4hbb9lv6geetdjb9', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -33,14 +32,20 @@
                 user_id,
                 timestamp
               })
-            })
-            .then(() => {
-              alert('Bank linked successfully!');
-            })
-            .catch(err => {
-              console.error("Failed to send token to Make:", err);
-              alert("Something went wrong.");
             });
+
+            console.log("Sending public_token to Make (transactions scenario)");
+            await fetch('https://hook.us2.make.com/7su9coq5iwr4yzmv1r9zd6urmuvoym9l', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                public_token,
+                user_id,
+                timestamp
+              })
+            });
+
+            alert('Bank linked and transactions sent!');
           },
           onExit: function(err, metadata) {
             console.log("User exited Plaid:", err, metadata);
