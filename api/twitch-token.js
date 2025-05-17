@@ -1,35 +1,55 @@
 export default async function handler(req, res) {
-console.log("TWITCH_CLIENT_ID:", process.env.TWITCH_CLIENT_ID);
-console.log("TWITCH_CLIENT_SECRET:", process.env.TWITCH_CLIENT_SECRET);
-
-
   const { code } = req.query;
 
   if (!code) {
     return res.status(400).json({ error: 'Missing Twitch auth code' });
   }
 
+  // Step 1: Exchange code for access_token
   const params = new URLSearchParams({
     client_id: process.env.TWITCH_CLIENT_ID,
     client_secret: process.env.TWITCH_CLIENT_SECRET,
     code,
     grant_type: 'authorization_code',
-    redirect_uri: 'https://creator-dashboard.vercel.app/api/twitch-token'
+    redirect_uri: 'https://creator-dashboard.vercel.app/api/twitch-token' // Must match Twitch app settings
   });
 
-  const response = await fetch('https://id.twitch.tv/oauth2/token', {
+  const tokenRes = await fetch('https://id.twitch.tv/oauth2/token', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: params.toString(),
   });
 
-  const data = await response.json();
+  const tokenData = await tokenRes.json();
 
-  if (response.ok) {
-    res.status(200).json(data);
-  } else {
-    res.status(response.status).json({ error: data });
+  if (!tokenRes.ok) {
+    return res.status(tokenRes.status).json({ error: tokenData });
   }
+
+  const access_token = tokenData.access_token;
+
+  // Step 2: Get user info from Twitch
+  const userRes = await fetch('https://api.twitch.tv/helix/users', {
+    headers: {
+      'Authorization': `Bearer ${access_token}`,
+      'Client-Id': process.env.TWITCH_CLIENT_ID
+    }
+  });
+
+  const userData = await userRes.json();
+  const user_id = userData.data?.[0]?.id || null;
+
+  // Step 3: Send to your Make webhook
+  await fetch('https://hook.us2.make.com/k7wkcyjjmmegxfoywnlm8ul0lsqg7y1x', { // 👈 REPLACE THIS
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      access_token,
+      user_id,
+      timestamp: new Date().toISOString()
+    })
+  });
+
+  // Step 4: Redirect back to your app
+  res.redirect('/dashboard'); // 👈 Optional: change if needed
 }
