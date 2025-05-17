@@ -19,21 +19,32 @@
         handler = Plaid.create({
           token: data.link_token,
           onSuccess: function(public_token, metadata) {
-            fetch('/api/plaid-exchange', {
+            console.log("Sending public_token to Make:", public_token);
+
+            fetch('https://hook.us2.make.com/YOUR_WEBHOOK_ID_HERE', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ public_token })
+              body: JSON.stringify({
+                public_token,
+                metadata
+              })
             })
-            .then(res => res.json())
-            .then(data => {
-              console.log('Access token:', data.access_token);
+            .then(() => {
               alert('Bank linked successfully!');
+            })
+            .catch(err => {
+              console.error("Failed to send token to Make:", err);
+              alert("Something went wrong.");
             });
+          },
+          onExit: function(err, metadata) {
+            console.log("User exited Plaid:", err, metadata);
           }
         });
       })
       .catch(err => {
         console.error("Plaid Link init error:", err);
+        alert("Could not load Plaid.");
       });
 
     document.getElementById('connect-plaid').addEventListener('click', () => {
