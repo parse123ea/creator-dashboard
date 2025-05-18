@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     client_secret: process.env.TWITCH_CLIENT_SECRET,
     code,
     grant_type: 'authorization_code',
-    redirect_uri: 'https://creator-dashboard.vercel.app/api/twitch-token' // Must match Twitch app settings
+    redirect_uri: 'https://creator-dashboard-parse123ea.vercel.app/api/twitch-token' // Must match Twitch app settings
   });
 
   const tokenRes = await fetch('https://id.twitch.tv/oauth2/token', {
