@@ -1,3 +1,8 @@
+console.log('DEBUG - TWITCH_CLIENT_ID:', process.env.TWITCH_CLIENT_ID);
+console.log('DEBUG - TWITCH_CLIENT_SECRET present?', !!process.env.TWITCH_CLIENT_SECRET);
+console.log('DEBUG - redirect_uri used:', 'https://creator-dashboard-parse123ea.vercel.app/api/twitch-token');
+
+
 export default async function handler(req, res) {
   const { code } = req.query;
 
