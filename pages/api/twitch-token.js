@@ -1,7 +1,3 @@
-console.log('TWITCH_CLIENT_ID:', process.env.TWITCH_CLIENT_ID);
-console.log('TWITCH_CLIENT_SECRET present?', !!process.env.TWITCH_CLIENT_SECRET);
-
-
 export default async function handler(req, res) {
   const { code } = req.query;
 
