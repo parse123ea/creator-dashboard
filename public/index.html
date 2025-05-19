@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,7 +10,7 @@
   <button id="connect-plaid">Connect Bank</button>
 
   <script>
-    // Plaid
+    // Plaid initialization
     let handler;
 
     fetch('/api/plaid-link-token')
@@ -21,7 +20,7 @@
           token: data.link_token,
           onSuccess: async function(public_token, metadata) {
 
-            const user_id = "user_123"; // You can dynamically generate this if needed
+            const user_id = "user_123"; // This could be dynamically generated
             const timestamp = new Date().toISOString();
 
             console.log("Sending public_token to Make (save-token scenario)");
@@ -58,6 +57,7 @@
         alert("Could not load Plaid.");
       });
 
+    // Plaid button click handler
     document.getElementById('connect-plaid').addEventListener('click', () => {
       if (handler) {
         handler.open();
@@ -66,23 +66,17 @@
       }
     });
 
-    // Twitch
+    // Twitch button click handler
     document.getElementById('connect-twitch').addEventListener('click', () => {
+      console.log("Redirecting to Twitch OAuth...");
       window.location.href =
-  'https://id.twitch.tv/oauth2/authorize' +
-  '?client_id=6uv02ovfzach9yxwad929srzn0l25k' +
-  '&redirect_uri=https://creator-dashboard-parse123ea.vercel.app/api/twitch-token' +
-  '&response_type=code' +
-  '&scope=user:read:email';
+        'https://id.twitch.tv/oauth2/authorize' +
+        '?client_id=6uv02ovfzach9yxwad929srzn0l25k' +
+        '&redirect_uri=https://creator-dashboard-parse123ea.vercel.app/api/twitch-token' + // Ensure this matches Twitch Developer Console
+        '&response_type=code' +
+        '&scope=user:read:email';
 
-    });
-
-    document.getElementById('connect-plaid').addEventListener('click', () => {
-      if (handler) {
-        handler.open();
-      } else {
-        alert("Plaid not ready yet. Try again shortly.");
-      }
+      console.log("Redirect to Twitch initiated.");
     });
   </script>
 </body>
