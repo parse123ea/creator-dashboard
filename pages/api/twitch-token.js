@@ -45,7 +45,7 @@ export default async function handler(req, res) {
   const user_id = userData.data?.[0]?.id || null;
 
   // Step 3: Send to your Make webhook
-  await fetch('https://hook.us2.make.com/k7wkcyjjmmegxfoywnlm8ul0lsqg7y1x', { // 👈 REPLACE THIS
+  await fetch('https://hook.us2.make.com/cuj4obdh6gw5jwgy37y2nc51ov8wfkfl', { // 👈 REPLACE THIS
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
