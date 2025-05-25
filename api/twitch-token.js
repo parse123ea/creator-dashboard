@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   // Retrieve environment variables
   const TWITCH_CLIENT_ID = process.env.TWITCH_CLIENT_ID;
   const TWITCH_CLIENT_SECRET = process.env.TWITCH_CLIENT_SECRET;
-  const TWITCH_REDIRECT_URI = process.env.TWITCH_REDIRECT_URI || 'https://creator-dashboard-parse123ea.vercel.app/api/twitch-token';
+  const TWITCH_REDIRECT_URI = process.env.TWITCH_REDIRECT_URI || 'https://creator-dashboard-edwins-projects-3e70e724.vercel.app/api/twitch-token';
 
   if (!TWITCH_CLIENT_ID || !TWITCH_CLIENT_SECRET) {
       console.error("Missing Twitch API environment variables. Ensure TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET are set in Vercel.");
