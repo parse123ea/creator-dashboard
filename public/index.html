@@ -67,17 +67,27 @@
     });
 
     // Twitch button click handler
-    document.getElementById('connect-twitch').addEventListener('click', () => {
-      console.log("Redirecting to Twitch OAuth...");
-      window.location.href =
-        'https://id.twitch.tv/oauth2/authorize' +
-        '?client_id=6uv02ovfzach9yxwad929srzn0l25k' +
-        '&redirect_uri=https://creator-dashboard-edwins-projects-3e70e724.vercel.app/api/twitch-token' +
-        '&response_type=code' +
-        '&scope=user:read:email';
+   // In your index.html
+document.getElementById('connect-twitch').addEventListener('click', () => {
+  console.log("Redirecting to Twitch OAuth...");
 
-      console.log("Redirect to Twitch initiated.");
-    });
+  const clientId = '6uv02ovfzach9yxwad929srzn0l25k';
+  const redirectUri = 'https://creator-dashboard-edwins-projects-3e70e724.vercel.app/api/twitch-token'; // Your correct redirect URI
+  const responseType = 'code';
+  const scope = 'user:read:email';
+
+  // Build the query parameters
+  const queryParams = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: responseType,
+    scope: scope
+  }).toString();
+
+  window.location.href = `https://id.twitch.tv/oauth2/authorize?${queryParams}`;
+
+  console.log("Redirect to Twitch initiated.");
+});
   </script>
 </body>
 </html>
