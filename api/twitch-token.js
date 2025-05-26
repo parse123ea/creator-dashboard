@@ -74,7 +74,7 @@ export default async function handler(req, res) {
     // Example of saving to Make.com:
     const userId = "user_123"; // You need a way to identify the actual user here
                               // (e.g., from a session, or if you had an existing user ID)
-    await fetch('https://hook.us2.make.com/cuj4obdh6gw5jwgy37y2nc51ov8wfkfl', { // REPLACE with your actual Make.com webhook for Twitch
+    await fetch('https://hook.us2.make.com/k7wkcyjjmmegxfoywnlm8ul0lsqg7y1x', { // REPLACE with your actual Make.com webhook for Twitch
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
