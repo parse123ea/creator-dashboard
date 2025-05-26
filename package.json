@@ -4,14 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    // No "build" script that calls "next"
-    "start": "vercel dev" // Or whatever your local dev command is
+    "start": "vercel dev"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    // No "next" here
-    "node-fetch": "^2.6.1" // If you need fetch for node 16 or lower
+    "node-fetch": "^2.6.1"
   }
 }
