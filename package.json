@@ -1,14 +1,17 @@
 {
   "name": "creator-dashboard",
   "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    // No "build" script that calls "next"
+    "start": "vercel dev" // Or whatever your local dev command is
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
-    "next": "^14.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    // No "next" here
+    "node-fetch": "^2.6.1" // If you need fetch for node 16 or lower
   }
 }
