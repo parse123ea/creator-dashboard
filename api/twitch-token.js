@@ -90,7 +90,7 @@ export default async function handler(req, res) {
     });
 
     // Redirect the user to your main dashboard or a success page
-    res.redirect('/dashboard?twitch_status=connected'); // Or whatever path makes sense for your portal
+   res.redirect('/?twitch_status=connected'); // Redirects back to your index.html (the root)
 
   } catch (error) {
     console.error("Critical error during Twitch token exchange or processing:", error);
