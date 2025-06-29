@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Connect Your Accounts</title>
+  <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+</head>
+<body>
+  <h1>Connect Your Accounts</h1>
+  <button id="connect-twitch">Connect Twitch</button>
+  <button id="connect-plaid">Connect Bank</button>
+
+  <script>
+    // Plaid initialization
+    let handler;
+
+    fetch('/api/plaid-link-token')
+      .then(res => res.json())
+      .then(data => {
+        handler = Plaid.create({
+          token: data.link_token,
+          onSuccess: async function(public_token, metadata) {
+
+            const user_id = "user_123"; // This could be dynamically generated
+            const timestamp = new Date().toISOString();
+
+            console.log("Sending public_token to Make (save-token scenario)");
+            await fetch('https://hook.us2.make.com/41vvltb5ci0ji3fa4hbb9lv6geetdjb9', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                public_token,
+                user_id,
+                timestamp
+              })
+            });
+
+            console.log("Sending public_token to Make (transactions scenario)");
+            await fetch('https://hook.us2.make.com/7su9coq5iwr4yzmv1r9zd6urmuvoym9l', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                public_token,
+                user_id,
+                timestamp
+              })
+            });
+
+            alert('Bank linked and transactions sent!');
+          },
+          onExit: function(err, metadata) {
+            console.log("User exited Plaid:", err, metadata);
+          }
+        });
+      })
+      .catch(err => {
+        console.error("Plaid Link init error:", err);
+        alert("Could not load Plaid.");
+      });
+
+    // Plaid button click handler
+    document.getElementById('connect-plaid').addEventListener('click', () => {
+      if (handler) {
+        handler.open();
+      } else {
+        alert("Plaid not ready yet. Try again shortly.");
+      }
+    });
+
+    // Twitch button click handler
+   // In your index.html
+document.getElementById('connect-twitch').addEventListener('click', () => {
+  console.log("Redirecting to Twitch OAuth...");
+
+  const clientId = '6uv02ovfzach9yxwad929srzn0l25k';
+  const redirectUri = 'https://creator-dashboard-parse123ea.vercel.app/api/twitch-token';
+  const responseType = 'code';
+  const scope = 'user:read:email';
+
+  // Build the query parameters
+  const queryParams = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    response_type: responseType,
+    scope: scope
+  }).toString();
+
+  window.location.href = `https://id.twitch.tv/oauth2/authorize?${queryParams}`;
+
+  console.log("Redirect to Twitch initiated.");
+});
+  </script>
+</body>
+</html>
