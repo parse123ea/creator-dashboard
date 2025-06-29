@@ -13,7 +13,7 @@
     // Plaid initialization
     let handler;
 
-    fetch('/api/plaid-link-token')
+    fetch('https://creator-dashboard-parse123ea.vercel.app/api/plaid-link-token')
       .then(res => res.json())
       .then(data => {
         handler = Plaid.create({
