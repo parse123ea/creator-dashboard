@@ -2,92 +2,150 @@
 <html>
 <head>
   <title>Connect Your Accounts</title>
+  <!-- Plaid Link SDK -->
   <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
 </head>
 <body>
   <h1>Connect Your Accounts</h1>
-  <button id="connect-twitch">Connect Twitch</button>
-  <button id="connect-plaid">Connect Bank</button>
 
-  <script>
-    // Plaid initialization
+  <!-- Authentication UI -->
+  <div id="auth-container">
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+    <button id="sign-up">Sign Up</button>
+    <button id="sign-in">Sign In</button>
+    <div id="status">Not signed in</div>
+  </div>
+
+  <!-- OAuth Connect Buttons -->
+  <button id="connect-twitch" style="display:none;">Connect Twitch</button>
+  <button id="connect-plaid" style="display:none;">Connect Bank</button>
+
+  <!-- Main Script: Firebase Auth + Plaid + Nango/Twitch -->
+  <script type="module">
+    // 1. Firebase setup
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-analytics.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDohgKezbagI3PK_dDhcW2PylUQ1DuM5so",
+      authDomain: "parsepanel-e98bd.firebaseapp.com",
+      projectId: "parsepanel-e98bd",
+      storageBucket: "parsepanel-e98bd.firebasestorage.app",
+      messagingSenderId: "1025097171328",
+      appId: "1:1025097171328:web:1870073029ab1c348a8165",
+      measurementId: "G-ZE4XCB83Z7"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+
+    // 2. Element references
+    const authContainer = document.getElementById('auth-container');
+    const emailInput = document.getElementById('email');
+    const passInput = document.getElementById('password');
+    const signUpBtn = document.getElementById('sign-up');
+    const signInBtn = document.getElementById('sign-in');
+    const statusDiv = document.getElementById('status');
+    const twitchBtn = document.getElementById('connect-twitch');
+    const plaidBtn = document.getElementById('connect-plaid');
+
+    // 3. Auth state listener
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        // User is signed in
+        const uid = user.uid;
+        localStorage.setItem('uid', uid);
+        statusDiv.textContent = `Logged in as ${user.email}`;
+        authContainer.style.display = 'none';
+        twitchBtn.style.display = 'inline-block';
+        plaidBtn.style.display = 'inline-block';
+      } else {
+        // No user signed in
+        localStorage.removeItem('uid');
+        statusDiv.textContent = 'Not signed in';
+        authContainer.style.display = 'block';
+        twitchBtn.style.display = 'none';
+        plaidBtn.style.display = 'none';
+      }
+    });
+
+    // 4. Sign-up & Sign-in handlers
+    signUpBtn.addEventListener('click', async () => {
+      const email = emailInput.value;
+      const pass = passInput.value;
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        console.log('User signed up:', cred.user.uid);
+      } catch (e) {
+        console.error(e);
+        alert(e.message);
+      }
+    });
+
+    signInBtn.addEventListener('click', async () => {
+      const email = emailInput.value;
+      const pass = passInput.value;
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, pass);
+        console.log('User signed in:', cred.user.uid);
+      } catch (e) {
+        console.error(e);
+        alert(e.message);
+      }
+    });
+
+    // 5. Plaid Link setup
     let handler;
-
     fetch('/api/plaid-link-token')
       .then(res => res.json())
       .then(data => {
         handler = Plaid.create({
           token: data.link_token,
-          onSuccess: async function(public_token, metadata) {
-
-            const user_id = "user_123"; // This could be dynamically generated
+          onSuccess: async (public_token, metadata) => {
+            const user_id = localStorage.getItem('uid');
             const timestamp = new Date().toISOString();
 
-            console.log("Sending public_token to Make (save-token scenario)");
+            // Send to Make scenarios
             await fetch('https://hook.us2.make.com/41vvltb5ci0ji3fa4hbb9lv6geetdjb9', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                public_token,
-                user_id,
-                timestamp
-              })
+              body: JSON.stringify({ public_token, user_id, timestamp })
             });
-
-            console.log("Sending public_token to Make (transactions scenario)");
             await fetch('https://hook.us2.make.com/7su9coq5iwr4yzmv1r9zd6urmuvoym9l', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                public_token,
-                user_id,
-                timestamp
-              })
+              body: JSON.stringify({ public_token, user_id, timestamp })
             });
 
             alert('Bank linked and transactions sent!');
           },
-          onExit: function(err, metadata) {
-            console.log("User exited Plaid:", err, metadata);
-          }
+          onExit: (err, metadata) => console.log('Plaid exit', err, metadata)
         });
       })
       .catch(err => {
-        console.error("Plaid Link init error:", err);
-        alert("Could not load Plaid.");
+        console.error('Plaid init error:', err);
+        alert('Could not load Plaid.');
       });
 
-    // Plaid button click handler
-    document.getElementById('connect-plaid').addEventListener('click', () => {
-      if (handler) {
-        handler.open();
-      } else {
-        alert("Plaid not ready yet. Try again shortly.");
-      }
+    plaidBtn.addEventListener('click', () => {
+      if (handler) handler.open();
+      else alert('Plaid not ready yet.');
     });
 
-    // Twitch button click handler
-   // In your index.html
-document.getElementById('connect-twitch').addEventListener('click', () => {
-  console.log("Redirecting to Twitch OAuth...");
-
-  const clientId = '6uv02ovfzach9yxwad929srzn0l25k';
-  const redirectUri = 'https://creator-dashboard-parse123ea.vercel.app/api/twitch-token';
-  const responseType = 'code';
-  const scope = 'user:read:email';
-
-  // Build the query parameters
-  const queryParams = new URLSearchParams({
-    client_id: clientId,
-    redirect_uri: redirectUri,
-    response_type: responseType,
-    scope: scope
-  }).toString();
-
-  window.location.href = `https://id.twitch.tv/oauth2/authorize?${queryParams}`;
-
-  console.log("Redirect to Twitch initiated.");
-});
+    // 6. Twitch via Nango
+    twitchBtn.addEventListener('click', () => {
+      const uid = localStorage.getItem('uid');
+      if (!uid) return alert('Please sign in first');
+      window.location.href = `https://api.nango.dev/oauth/connect/twitch?connection_id=${uid}`;
+    });
   </script>
 </body>
 </html>
