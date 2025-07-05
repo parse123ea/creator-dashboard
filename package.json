@@ -1,6 +1,13 @@
 {
+  "name": "creator-dashboard",
+  "version": "1.0.0",
   "dependencies": {
-    "@nango/node": "^1.1.1",
-    "plaid": "^26.0.0"
+    "@nango/node": "^0.1.x",
+    "node-fetch": "^2.x",       // only if you needed it
+    // … any other deps …
+  },
+  "scripts": {
+    "build": "next build",
+    "start": "next start"
   }
 }
