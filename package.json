@@ -1,14 +1,4 @@
 {
-  "name": "creator-dashboard",
-  "version": "1.0.0",
-  "description": "creator-dashboard",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@nango/node": "^1.1.1",
     "plaid": "^26.0.0"
