@@ -23,6 +23,9 @@
 
   <!-- Main Script: Firebase Auth + Plaid + Nango/Twitch -->
   <script type="module">
+    // 0. Nango public key
+    const NANGO_PUBLIC_KEY = 'b15e3c3a-0314-459b-86c3-34cf8c7b8e72';
+
     // 1. Firebase setup
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-analytics.js";
@@ -60,7 +63,6 @@
     // 3. Auth state listener
     onAuthStateChanged(auth, user => {
       if (user) {
-        // User is signed in
         const uid = user.uid;
         localStorage.setItem('uid', uid);
         statusDiv.textContent = `Logged in as ${user.email}`;
@@ -68,7 +70,6 @@
         twitchBtn.style.display = 'inline-block';
         plaidBtn.style.display = 'inline-block';
       } else {
-        // No user signed in
         localStorage.removeItem('uid');
         statusDiv.textContent = 'Not signed in';
         authContainer.style.display = 'block';
@@ -113,7 +114,6 @@
             const user_id = localStorage.getItem('uid');
             const timestamp = new Date().toISOString();
 
-            // Send to Make scenarios
             await fetch('https://hook.us2.make.com/41vvltb5ci0ji3fa4hbb9lv6geetdjb9', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -144,7 +144,10 @@
     twitchBtn.addEventListener('click', () => {
       const uid = localStorage.getItem('uid');
       if (!uid) return alert('Please sign in first');
-      window.location.href = `https://api.nango.dev/oauth/connect/twitch?connection_id=${uid}`;
+      const url = new URL('https://api.nango.dev/oauth/connect/twitch');
+      url.searchParams.set('public_key', NANGO_PUBLIC_KEY);
+      url.searchParams.set('connection_id', uid);
+      window.location.href = url.toString();
     });
   </script>
 </body>
