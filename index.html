@@ -1,140 +1,140 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-  <title>Connect Your Accounts</title>
-    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+  <title>Connect Your Accounts</title>
+  <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js" crossorigin="anonymous"></script>
 </head>
 <body>
-  <h1>Connect Your Accounts</h1>
+  <h1>Connect Your Accounts</h1>
 
-    <div id="auth-container">
-    <input id="email" type="email" placeholder="Email" />
-    <input id="password" type="password" placeholder="Password" />
-    <button id="sign-up">Sign Up</button>
-    <button id="sign-in">Sign In</button>
-    <div id="status">Not signed in</div>
-  </div>
+    <div id="auth-container">
+    <input id="email" type="email" placeholder="Email" />
+    <input id="password" type="password" placeholder="Password" />
+    <button id="sign-up">Sign Up</button>
+    <button id="sign-in">Sign In</button>
+    <div id="status">Not signed in</div>
+  </div>
 
-    <button id="connect-twitch" style="display:none;">Connect Twitch</button>
-  <button id="connect-plaid" style="display:none;">Connect Bank</button>
+    <button id="connect-twitch" style="display:none;">Connect Twitch</button>
+  <button id="connect-plaid" style="display:none;">Connect Bank</button>
 
-    <script type="module">
-    // 1. Imports
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-analytics.js";
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      onAuthStateChanged
-    } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+    <script type="module">
+    // 1. Imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-analytics.js";
+    import {
+      getAuth,
+      createUserWithEmailAndPassword,
+      signInWithEmailAndPassword,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
     import nango from 'https://unpkg.com/@nango/frontend@latest/dist/nango.mjs';
 
 
-    // 2. Firebase setup
-    const firebaseConfig = {
-      apiKey: "AIzaSyDohgKezbagI3PK_dDhcW2PylUQ1DuM5so",
-      authDomain: "parsepanel-e98bd.firebaseapp.com",
-      projectId: "parsepanel-e98bd",
-      storageBucket: "parsepanel-e98bd.firebasestorage.app",
-      messagingSenderId: "1025097171328",
-      appId: "1:1025097171328:web:1870073029ab1c348a8165",
-      measurementId: "G-ZE4XCB83Z7"
-    };
+    // 2. Firebase setup
+    const firebaseConfig = {
+      apiKey: "AIzaSyDohgKezbagI3PK_dDhcW2PylUQ1DuM5so",
+      authDomain: "parsepanel-e98bd.firebaseapp.com",
+      projectId: "parsepanel-e98bd",
+      storageBucket: "parsepanel-e98bd.firebasestorage.app",
+      messagingSenderId: "1025097171328",
+      appId: "1:1025097171328:web:1870073029ab1c348a8165",
+      measurementId: "G-ZE4XCB83Z7"
+    };
 
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const auth = getAuth(app);
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
 
-    // 3. Element references
-    const authContainer = document.getElementById('auth-container');
-    const emailInput = document.getElementById('email');
-    const passInput = document.getElementById('password');
-    const signUpBtn = document.getElementById('sign-up');
-    const signInBtn = document.getElementById('sign-in');
-    const statusDiv = document.getElementById('status');
-    const twitchBtn = document.getElementById('connect-twitch');
-    const plaidBtn = document.getElementById('connect-plaid');
+    // 3. Element references
+    const authContainer = document.getElementById('auth-container');
+    const emailInput = document.getElementById('email');
+    const passInput = document.getElementById('password');
+    const signUpBtn = document.getElementById('sign-up');
+    const signInBtn = document.getElementById('sign-in');
+    const statusDiv = document.getElementById('status');
+    const twitchBtn = document.getElementById('connect-twitch');
+    const plaidBtn = document.getElementById('connect-plaid');
 
-    // 4. Auth state listener
-    onAuthStateChanged(auth, user => {
-      if (user) {
-        const uid = user.uid;
-        localStorage.setItem('uid', uid);
-        statusDiv.textContent = `Logged in as ${user.email}`;
-        authContainer.style.display = 'none';
-        twitchBtn.style.display = 'inline-block';
-        plaidBtn.style.display = 'inline-block';
-      } else {
-        localStorage.removeItem('uid');
-        statusDiv.textContent = 'Not signed in';
-        authContainer.style.display = 'block';
-        twitchBtn.style.display = 'none';
-        plaidBtn.style.display = 'none';
-      }
-    });
+    // 4. Auth state listener
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        const uid = user.uid;
+        localStorage.setItem('uid', uid);
+        statusDiv.textContent = `Logged in as ${user.email}`;
+        authContainer.style.display = 'none';
+        twitchBtn.style.display = 'inline-block';
+        plaidBtn.style.display = 'inline-block';
+      } else {
+        localStorage.removeItem('uid');
+        statusDiv.textContent = 'Not signed in';
+        authContainer.style.display = 'block';
+        twitchBtn.style.display = 'none';
+        plaidBtn.style.display = 'none';
+      }
+    });
 
-    // 5. Sign-up & Sign-in handlers
-    signUpBtn.addEventListener('click', async () => {
-      const email = emailInput.value;
-      const pass = passInput.value;
-      try {
-        const cred = await createUserWithEmailAndPassword(auth, email, pass);
-        console.log('User signed up:', cred.user.uid);
-      } catch (e) {
-        console.error(e);
-        alert(e.message);
-      }
-    });
+    // 5. Sign-up & Sign-in handlers
+    signUpBtn.addEventListener('click', async () => {
+      const email = emailInput.value;
+      const pass = passInput.value;
+      try {
+        const cred = await createUserWithEmailAndPassword(auth, email, pass);
+        console.log('User signed up:', cred.user.uid);
+      } catch (e) {
+        console.error(e);
+        alert(e.message);
+      }
+    });
 
-    signInBtn.addEventListener('click', async () => {
-      const email = emailInput.value;
-      const pass = passInput.value;
-      try {
-        const cred = await signInWithEmailAndPassword(auth, email, pass);
-        console.log('User signed in:', cred.user.uid);
-      } catch (e) {
-        console.error(e);
-        alert(e.message);
-      }
-    });
+    signInBtn.addEventListener('click', async () => {
+      const email = emailInput.value;
+      const pass = passInput.value;
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, pass);
+        console.log('User signed in:', cred.user.uid);
+      } catch (e) {
+        console.error(e);
+        alert(e.message);
+      }
+    });
 
-    // 6. Plaid Link setup
-    let handler;
-    fetch('/api/plaid-link-token')
-      .then(res => res.json())
-      .then(data => {
-        handler = Plaid.create({
-          token: data.link_token,
-          onSuccess: async (public_token, metadata) => {
-            const user_id = localStorage.getItem('uid');
-            const timestamp = new Date().toISOString();
+    // 6. Plaid Link setup
+    let handler;
+    fetch('/api/plaid-link-token')
+      .then(res => res.json())
+      .then(data => {
+        handler = Plaid.create({
+          token: data.link_token,
+          onSuccess: async (public_token, metadata) => {
+            const user_id = localStorage.getItem('uid');
+            const timestamp = new Date().toISOString();
 
-            await fetch('https://hook.us2.make.com/41vvltb5ci0ji3fa4hbb9lv6geetdjb9', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ public_token, user_id, timestamp })
-            });
-            await fetch('https://hook.us2.make.com/7su9coq5iwr4yzmv1r9zd6urmuvoym9l', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ public_token, user_id, timestamp })
-            });
+            await fetch('https://hook.us2.make.com/41vvltb5ci0ji3fa4hbb9lv6geetdjb9', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ public_token, user_id, timestamp })
+            });
+            await fetch('https://hook.us2.make.com/7su9coq5iwr4yzmv1r9zd6urmuvoym9l', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ public_token, user_id, timestamp })
+            });
 
-            alert('Bank linked and transactions sent!');
-          },
-          onExit: (err, metadata) => console.log('Plaid exit', err, metadata)
-        });
-      })
-      .catch(err => {
-        console.error('Plaid init error:', err);
-        alert('Could not load Plaid.');
-      });
+            alert('Bank linked and transactions sent!');
+          },
+          onExit: (err, metadata) => console.log('Plaid exit', err, metadata)
+        });
+      })
+      .catch(err => {
+        console.error('Plaid init error:', err);
+        alert('Could not load Plaid.');
+      });
 
-    plaidBtn.addEventListener('click', () => {
-      if (handler) handler.open();
-      else alert('Plaid not ready yet.');
-    });
+    plaidBtn.addEventListener('click', () => {
+      if (handler) handler.open();
+      else alert('Plaid not ready yet.');
+    });
 
     // 7. Twitch via Nango
     twitchBtn.addEventListener('click', async () => {
@@ -170,6 +170,6 @@
             alert('There was an error connecting your Twitch account.');
         }
     });
-  </script>
+  </script>
 </body>
 </html>
