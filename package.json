@@ -2,7 +2,7 @@
   "name": "creator-dashboard",
   "version": "1.0.0",
   "dependencies": {
-    "@nango/node": "^0.1.0",
+    "@nangohq/node": "^0.61.3",
     "node-fetch": "^2.6.7"
   },
   "scripts": {
