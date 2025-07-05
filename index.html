@@ -143,33 +143,12 @@
 
         try {
             // Step 1: Call your new backend on Vercel to get a session token
-            const response = await fetch('https://creator-dashboard-parse123ea.vercel.app/api/nango-auth-token.js', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: uid }),
+            const response = await fetch('/api/nango-auth-token', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userId: uid }),
             });
 
             if (!response.ok) {
-                throw new Error('Failed to fetch Nango session token');
-            }
-
-            const data = await response.json();
-            const sessionToken = data.session_token;
-
-            // Step 2: Use the session token to start the Nango auth flow
-            const result = await nango.auth({
-                provider: 'twitch',
-                sessionToken: sessionToken
-            });
-
-            console.log('Nango auth result:', result);
-            alert(`Successfully connected Twitch!`);
-
-        } catch (error) {
-            console.error('Nango auth error:', error);
-            alert('There was an error connecting your Twitch account.');
-        }
-    });
-  </script>
-</body>
-</html>
+                const errorData = await response.json();
+                throw
