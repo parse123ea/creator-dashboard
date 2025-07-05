@@ -1,6 +1,9 @@
 {
   "name": "creator-dashboard",
   "version": "1.0.0",
+  "engines": {
+    "node": "20.x"
+  },
   "dependencies": {
     "@nangohq/node": "^0.61.3",
     "node-fetch": "^2.6.7"
