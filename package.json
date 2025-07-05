@@ -1,15 +1,16 @@
 {
   "name": "creator-dashboard",
   "version": "1.0.0",
-  "description": "",
+  "description": "creator-dashboard",
   "main": "index.js",
   "scripts": {
-    "start": "vercel dev"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "node-fetch": "^2.6.1"
+    "@nango/node": "^1.1.1",
+    "plaid": "^26.0.0"
   }
 }
