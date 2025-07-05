@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "dependencies": {
     "@nango/node": "^0.1.x",
-    "node-fetch": "^2.x",       // only if you needed it
-    // … any other deps …
+    "node-fetch": "^2.x",       
   },
   "scripts": {
     "build": "next build",
