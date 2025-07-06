@@ -2,15 +2,15 @@
 <html>
 <head>
   <title>Connect Your Accounts</title>
-  <!-- Plaid Link SDK -->
-  <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+  <!-- Plaid Link SDK (commented out for now) -->
+  <!-- <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script> -->
 </head>
 <body>
   <h1>Connect Your Accounts</h1>
 
   <!-- Authentication UI -->
   <div id="auth-container">
-    <input id="email"    type="email"    placeholder="Email"    />
+    <input id="email"    type="email"    placeholder="Email" />
     <input id="password" type="password" placeholder="Password" />
     <button id="sign-up">Sign Up</button>
     <button id="sign-in">Sign In</button>
@@ -19,17 +19,16 @@
 
   <!-- OAuth Connect Buttons -->
   <button id="connect-twitch" style="display:none;">Connect Twitch</button>
-  <button id="connect-plaid"  style="display:none;">Connect Bank</button>
+  <!-- <button id="connect-plaid"  style="display:none;">Connect Bank</button> -->
 
   <script type="module">
     console.log("🔥 main.js loaded");
 
-    // Nango public key – replace with your actual pk_… value
-    const NANGO_PUBLIC_KEY = 'pk_YOUR_PUBLIC_KEY_HERE';
+    // TODO: paste your actual Nango public key here (starts with pk_…)
+    const NANGO_PUBLIC_KEY = "pk_YOUR_PUBLIC_KEY_HERE";
 
-    // 1. Firebase setup
+    // 1. Firebase imports
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-analytics.js";
     import {
       getAuth,
       createUserWithEmailAndPassword,
@@ -37,53 +36,49 @@
       onAuthStateChanged
     } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
 
+    // 2. Firebase init
     const firebaseConfig = {
       apiKey: "AIzaSyDohgKezbagI3PK_dDhcW2PylUQ1DuM5so",
       authDomain: "parsepanel-e98bd.firebaseapp.com",
       projectId: "parsepanel-e98bd",
-      storageBucket: "parsepanel-e98bd.firebasestorage.app",
-      messagingSenderId: "1025097171328",
-      appId: "1:1025097171328:web:1870073029ab1c348a8165",
-      measurementId: "G-ZE4XCB83Z7"
     };
     const app  = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
     const auth = getAuth(app);
 
-    // 2. Element references
-    const emailInput   = document.getElementById('email');
-    const passInput    = document.getElementById('password');
-    const signUpBtn    = document.getElementById('sign-up');
-    const signInBtn    = document.getElementById('sign-in');
-    const statusDiv    = document.getElementById('status');
-    const authContainer= document.getElementById('auth-container');
-    const twitchBtn    = document.getElementById('connect-twitch');
-    const plaidBtn     = document.getElementById('connect-plaid');
+    // 3. Element refs
+    const emailInput    = document.getElementById("email");
+    const passInput     = document.getElementById("password");
+    const signUpBtn     = document.getElementById("sign-up");
+    const signInBtn     = document.getElementById("sign-in");
+    const statusDiv     = document.getElementById("status");
+    const authContainer = document.getElementById("auth-container");
+    const twitchBtn     = document.getElementById("connect-twitch");
 
-    // 3. Auth state listener
+    // 4. Auth listener
     onAuthStateChanged(auth, user => {
       if (user) {
         console.log("User signed in:", user.uid);
-        localStorage.setItem('uid', user.uid);
-        statusDiv.textContent = `Logged in as ${user.email}`;
-        authContainer.style.display = 'none';
-        twitchBtn.style.display = 'inline-block';
-        plaidBtn.style.display  = 'inline-block';
+        localStorage.setItem("uid", user.uid);
+        statusDiv.textContent       = `Logged in as ${user.email}`;
+        authContainer.style.display = "none";
+        twitchBtn.style.display     = "inline-block";
       } else {
         console.log("No user signed in");
-        localStorage.removeItem('uid');
-        statusDiv.textContent = 'Not signed in';
-        authContainer.style.display = 'block';
-        twitchBtn.style.display = 'none';
-        plaidBtn.style.display  = 'none';
+        localStorage.removeItem("uid");
+        statusDiv.textContent       = "Not signed in";
+        authContainer.style.display = "block";
+        twitchBtn.style.display     = "none";
       }
     });
 
-    // 4. Sign-up
-    signUpBtn.addEventListener('click', async () => {
+    // 5. Sign Up
+    signUpBtn.addEventListener("click", async () => {
       try {
-        const cred = await createUserWithEmailAndPassword(auth,
-          emailInput.value, passInput.value);
+        const cred = await createUserWithEmailAndPassword(
+          auth,
+          emailInput.value,
+          passInput.value
+        );
         console.log("Sign-up success:", cred.user.uid);
       } catch (e) {
         console.error("Sign-up error:", e);
@@ -91,11 +86,14 @@
       }
     });
 
-    // 5. Sign-in
-    signInBtn.addEventListener('click', async () => {
+    // 6. Sign In
+    signInBtn.addEventListener("click", async () => {
       try {
-        const cred = await signInWithEmailAndPassword(auth,
-          emailInput.value, passInput.value);
+        const cred = await signInWithEmailAndPassword(
+          auth,
+          emailInput.value,
+          passInput.value
+        );
         console.log("Sign-in success:", cred.user.uid);
       } catch (e) {
         console.error("Sign-in error:", e);
@@ -103,45 +101,32 @@
       }
     });
 
-    // 6. Plaid Link
-    let handler;
-    fetch('/api/plaid-link-token')
-      .then(r => r.json())
-      .then(data => {
-        handler = Plaid.create({
-          token: data.link_token,
-          onSuccess: (public_token, metadata) => {
-            console.log("Plaid success for user:", localStorage.getItem('uid'));
-          }
-        });
-      })
-      .catch(err => {
-        console.error('Plaid init error:', err);
-        alert('Could not load Plaid.');
-      });
-    plaidBtn.addEventListener('click', () => handler?.open() || alert('Plaid not ready'));
-
-    // 7. Twitch via Nango (REST-based)
-    twitchBtn.addEventListener('click', async () => {
-      const uid = localStorage.getItem('uid');
-      if (!uid) return alert('Please sign in first');
+    // 7. Twitch via Nango (REST)
+    twitchBtn.addEventListener("click", async () => {
+      const uid = localStorage.getItem("uid");
+      if (!uid) return alert("Please sign in first");
 
       try {
-        const resp = await fetch('/api/nango-auth-token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        // 1) get session token from your Vercel API
+        const resp = await fetch("/api/nango-auth-token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: uid })
         });
-        if (!resp.ok) throw new Error((await resp.json()).error || 'Nango error');
+        if (!resp.ok) {
+          const err = await resp.json();
+          throw new Error(err.error || "Nango error");
+        }
         const { session_token } = await resp.json();
 
-        const url = new URL('https://api.nango.dev/oauth/connect/twitch');
-        url.searchParams.set('public_token', session_token);
-        url.searchParams.set('connection_id', uid);
-        console.log('Redirecting to Nango OAuth:', url.toString());
-        window.location.href = url;
+        // 2) redirect into Nango OAuth
+        const url = new URL("https://api.nango.dev/oauth/connect/twitch");
+        url.searchParams.set("public_token", session_token);
+        url.searchParams.set("connection_id", uid);
+        console.log("→ redirecting to:", url.toString());
+        window.location.href = url.toString();
       } catch (e) {
-        console.error('Twitch connect failed:', e);
+        console.error("Twitch connect failed:", e);
         alert(`Connection failed: ${e.message}`);
       }
     });
