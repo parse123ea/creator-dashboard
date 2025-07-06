@@ -1,10 +1,17 @@
 {
   "version": 2,
   "installCommand": "npm install",
+  "buildCommand": "echo \"No build step required\"",
   "functions": {
-    "api/**/*.js": { "runtime": "@vercel/node@3.0.0" }
+    "api/**/*.js": {
+      "runtime": "@vercel/node@3.0.0"
+    }
   },
   "routes": [
-    { "src": "/api/(.*)", "dest": "/api/$1" }
+    // 1) API routes
+    { "src": "/api/(.*)", "dest": "/api/$1.js" },
+
+    // 2) Everything else → index.html
+    { "src": "/(.*)",       "dest": "/index.html" }
   ]
 }
