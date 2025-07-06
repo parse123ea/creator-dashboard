@@ -2,7 +2,6 @@
   "name": "creator-dashboard",
   "version": "1.0.0",
   "dependencies": {
-    "@nangohq/node": "^0.62.0",
     "plaid": "^26.0.0"
   }
 }
