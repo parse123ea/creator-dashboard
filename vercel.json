@@ -3,14 +3,20 @@
   "installCommand": "npm install",
   "buildCommand": "echo \"No build step required\"",
   "functions": {
-    "api/**/*.js": {
-      "runtime": "@vercel/node@3.0.0"
-    }
+    "api/**/*.js": { "runtime": "@vercel/node@3.0.0" }
   },
   "routes": [
+    // 1) Explicitly send POST/OPTIONS for this one to the function
+    {
+      "src": "/api/nango-auth-token",
+      "methods": ["POST", "OPTIONS"],
+      "dest": "/api/nango-auth-token.js"
+    },
 
-    { "src": "/api/(.*)", "dest": "/api/$1.js" },
+    // 2) All other /api/*.js → functions
+    { "src": "/api/(.*)",        "dest": "/api/$1.js" },
 
-    { "src": "/(.*)",       "dest": "/index.html" }
+    // 3) Everything else → your index.html
+    { "src": "/(.*)",            "dest": "/index.html" }
   ]
 }
