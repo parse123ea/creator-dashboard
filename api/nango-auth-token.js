@@ -1,30 +1,59 @@
-// Filename: /api/nango-auth-token.js
+// File: api/nango-auth-token.js
 
-import { Nango } from '@nango/node';
+export default async function handler(req, res) {
+  // Verify we got a JSON body
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
 
-// This is the main function Vercel will run
-export default async function handler(request, response) {
-  // Use environment variables for security
-  const nango = new Nango({ secretKey: process.env.NANGO_SECRET_KEY });
+  let body;
+  try {
+    body = req.body;
+  } catch {
+    return res.status(400).json({ error: 'Invalid JSON' });
+  }
 
-  // Get the userId from the request body
-  const { userId } = request.body;
-
+  const { userId } = body;
   if (!userId) {
-    return response.status(400).json({ error: 'userId is required' });
+    return res.status(400).json({ error: 'userId is required' });
+  }
+
+  // Make sure the secret key is present
+  const secret = process.env.NANGO_SECRET_KEY;
+  if (!secret) {
+    console.error('Missing NANGO_SECRET_KEY!');
+    return res.status(500).json({ error: 'Server misconfiguration' });
   }
 
   try {
-    // Create the secure, temporary token for the frontend
-    const sessionToken = await nango.auth.createSessionToken({
-      userId: userId,
+    // Call Nango's REST endpoint
+    const resp = await fetch('https://api.nango.dev/auth/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${secret}`
+      },
+      body: JSON.stringify({ userId })
     });
 
-    // Send the token back to the frontend
-    return response.status(200).json({ session_token: sessionToken });
+    const text = await resp.text();
+    if (!resp.ok) {
+      // Bubble up any error text
+      console.error('Nango REST error:', text);
+      return res.status(resp.status).json({ error: text });
+    }
 
-  } catch (error) {
-    console.error('Nango session token error:', error);
-    return response.status(500).json({ error: 'Failed to create session token' });
+    // Parse and return JSON
+    let json;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      throw new Error('Invalid JSON from Nango: ' + text);
+    }
+
+    return res.status(200).json({ session_token: json.session_token });
+  } catch (e) {
+    console.error('Handler error:', e);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
