@@ -8,10 +8,9 @@
     }
   },
   "routes": [
-    // 1) API routes
+
     { "src": "/api/(.*)", "dest": "/api/$1.js" },
 
-    // 2) Everything else → index.html
     { "src": "/(.*)",       "dest": "/index.html" }
   ]
 }
