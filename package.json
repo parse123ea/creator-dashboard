@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "@nangohq/node": "1.2.1",
+    "@nangohq/node": "1.2.3",
     "plaid": "^26.0.0"
   },
   "engines": {
