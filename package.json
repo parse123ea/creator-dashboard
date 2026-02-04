@@ -1,7 +1,0 @@
-{
-  "name": "creator-dashboard",
-  "version": "1.0.0",
-  "dependencies": {
-    "plaid": "^26.0.0"
-  }
-}
